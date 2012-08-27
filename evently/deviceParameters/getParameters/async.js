@@ -1,0 +1,10 @@
+function(callback, e, controldevicename,databasename,devicename,subdevicename) {
+	var controldocname;
+	if(controldevicename=='Labjacks') {
+		controldocname = 'ControlDoc';
+	}
+	if(controldevicename=='DataGenerators') {
+		controldocname = 'Parameter';
+	}
+	getParameters(controldevicename, databasename,devicename,subdevicename, controldocname, callback);
+}

@@ -1,0 +1,147 @@
+function updateHTML() {
+// this functions renders the Lists of devices to HTML collapsible list
+	
+    var content = '<div data-role="collapsible-set">';
+    var count = 0;
+    
+  	if (FoundASkeleton) {
+  		content += '<div data-role="collapsible">';
+  		content += '<h3>Data generators</h3>';
+		for (var dbName in $SkeletonDBList) {
+			count = count+1;
+			content += '<p><a href="#'+dbName+'">' + dbName +'</a></p>';
+		}
+		content += '</div>';
+	}
+	if (FoundALabjack) {
+  		content += '<div data-role="collapsible">';
+  		content += '<h3>Labjacks</h3>';
+  		content += '<ul>';
+		for (var dbName in $LabjackList) {
+			count = count+1;
+			content += '<li><a href="#'+dbName+'">' + dbName +'</a></li>';
+		}
+		content +='<ul>';	
+		content += '</div></div>';
+	}
+	
+	// Labview, etc?
+
+    if(count>0){
+		clearInterval(refreshControlDevicesPage);
+		clearInterval(updateDatabaseInfo);
+		$.log("Fertig?");
+		
+        $('#controlDevicesContent').html(content);
+        $.mobile.changePage($("#controlDevicesPage"),{ transition: "slideup"} );
+    }
+	else {
+		clearInterval(refreshControlDevicesPage);
+	    refreshControlDevicesPage = setInterval('updateHTML()', 2000);
+        if(firstLoad){
+            $('#controlDevicesContent').text("Loading");
+            firstLoad = false;
+        }
+        else {
+            $('#controlDevicesContent').innerHTML = "There are no devices in CouchDB";
+        }
+    }
+}
+
+$.couch.app(function (app) {
+//        $("#controlDevicesContent").evently("controlDevicesContent", app);
+});
+
+
+
+var $updateDatabaseInfo; // timer for collecting databases 
+var $refreshControlDevicesPage; //timer for updating the main page
+var $DevicesList = [];			// THE MAIN LIST
+var FoundALabjack = false;
+var FoundASkeleton = false;
+var firstLoad = true;
+
+$(document).bind('pagebeforecreate', function() {	// jQuery mobile uses this function instead of  $(document).ready()
+	collectDBs();
+});
+
+function collectDBs() {
+	clearInterval($updateDatabaseInfo);
+    $.couch.allDbs( { success : function(dbs) { loadDBList(dbs); } });
+    $updateDatabaseInfo = setInterval('collectDBs()', 2000);
+}
+
+function loadDBList(dbs) {
+    dbs.forEach(function(db1) {
+        var aDB = $.couch.db(db1);
+		aDB.allDocs( { keys : ['Parameter'] , 				// for data generator 
+			success: function(data) {
+				for(var i in data.rows) {
+					if (data.rows[i]['error']) return;
+				}
+				foundSkeleton(db1);
+		}, error : function(data){$.log(data);}});
+
+		if(db1.match("labjack")){							// for LabJack
+			foundLabJack(db1);
+		}
+    });
+}
+
+function foundSkeleton(aDataBaseName) {
+	FoundASkeleton = true;
+	$DevicesList['DataGens'] = {'name' : 'Data generators', 'databases' : []};
+	getView(aDataBaseName,"Skeleton/bykey",'DataGens');
+}
+
+function foundLabJack(aDataBaseName) {
+	FoundALabjack = true;
+	$DevicesList['Labjacks'] = {'name' : 'Labjacks', 'databases' : []};
+	getView(aDataBaseName,"Labjack/bykey", 'Labjacks');
+}
+
+function getView(aDataBaseName,aViewName,id) {
+
+	var aDataBase = $.couch.db(aDataBaseName);
+	
+	aDataBase.view(aViewName, {group_level : 2, stale : 'update_after', success : function(doc) {
+		$DevicesList[id]['databases'][aDataBaseName] = {'dbname': aDataBaseName, 'devices':[]};
+		$.log($DevicesList[id]['databases'][aDataBaseName]);
+		for (i in doc.rows) {
+			if ($DevicesList[id]['databases'][aDataBaseName]['devices'][doc.rows[i].key[0]] == undefined) {
+				$DevicesList[id]['databases'][aDataBaseName]['devices'][doc.rows[i].key[0]] = { 'devicename' : doc.rows[i].key[0], 'subdevices' : [] };		}
+			$DevicesList[id]['databases'][aDataBaseName]['devices'][doc.rows[i].key[0]]['subdevices'][doc.rows[i].key[1]] = { "subdevname":doc.rows[i].key[1]}		
+		}
+	}});
+}
+
+
+
+
+function makeEmptyNote () {
+        $.log("logic.js - makeEmptyNote");
+        var emptynote = {"_id" :  ""
+                , "_rev" : ""
+                , "type" : "note"
+                , "TextNote" : {"note" : {"title": ""
+                        , "text" : ""
+                        , "tags" : []
+                }
+                }
+        };
+        return emptynote;
+};
+
+function doStoreDocument(document) {
+        $db.saveDoc(document, {
+                async : false,
+                success: function (data) {
+                        $("body").data.docEdited = data.id;
+        $.log("store - success" + data.id + " " +  data.rev);
+                        //  $.mobile.changePage("#editPage", "slidedown", true, true);
+                },
+    error: function () {
+        alert("Cannot save new document.");
+    }
+});
+}

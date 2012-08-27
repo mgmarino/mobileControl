@@ -1,0 +1,39 @@
+<div data-role="collapsible" data-collapsed="false">
+	<h3> Data </h3>
+	<h4> Range for plot </h4>
+	<form id="setdatarange" method="post">
+		<div data-role="fieldcontain" id="datafieldcontain">
+			<label for="startpoint">Start Date and Time</label>
+			<input name="startpoint" id="startpoint" type="text" data-role="datebox"
+			   data-options='{"mode": "slidebox", "overrideDateFormat":"%Y/%m/%d %H:%M", "overrideTimeFormat":24, "overrideSlideFieldOrder":["y","m","d","h","i"]}'>
+	   
+			<label for="endpoint">End Date and Time</label>
+
+			<input name="endpoint" id="endpoint" type="text" data-role="datebox"
+			   data-options='{"mode": "slidebox", "overrideDateFormat":"%Y/%m/%d %H:%M", "overrideTimeFormat":24, "overrideSlideFieldOrder":["y","m","d","h","i"]}'>
+		
+		<input type="submit" value="submit">
+		<div id="saved"></div>
+		
+		</div>
+	</form>
+	<div id="container"></div>
+
+</div>
+
+
+<script type="text/javascript" charset="utf-8">
+
+	
+	$("form#setdatarange").submit(function() {
+		starttime = (new Date($("input[id=startpoint]").val())).getTime()/1000;
+		endtime = (new Date($("input[id=endpoint]").val())).getTime()/1000;
+		$.log(starttime,endtime);
+		$zoomlevel = ['no zoom'];
+		plotSubmit('{{controldevicename}}','{{databasename}}','{{devicename}}','{{subdevicename}}',starttime,endtime);
+
+		return false; 
+	});
+  </script>
+
+

@@ -1,0 +1,39 @@
+<div data-role="collapsible" data-collapsed="false">
+<h3>Parameters</h3>
+	<form id="newparameters" action="new.html" method="post">
+	<div data-role="fieldcontain">
+		   	{{#parameters}}
+			<label for="{{parameter}}">{{ parameter }}:</label>  
+			<input type="text" name="{{devicename}}_{{subdevicename}}_{{parameter}}" id="{{parameter}}" value="{{value}}">
+			{{/parameters}}
+			
+<input type="submit" value="submit">
+<div id="saved"></div>
+
+</form>
+
+  <script type="text/javascript" charset="utf-8">
+	$("form#newparameters").submit(function() {
+		var postDoc = {{{doc}}};
+	  	{{#parameters}}
+	  	// following part is for the type of value, is it a string (function: sin), or an int (value of data)
+		if(isNaN(parseFloat($("input[name={{devicename}}_{{subdevicename}}_{{parameter}}]").val()))) {
+			postDoc['{{devicename}}']['{{subdevicename}}']['{{parameter}}'] = $("input[name={{devicename}}_{{subdevicename}}_{{parameter}}]").val();
+		}
+		else {
+			postDoc['{{devicename}}']['{{subdevicename}}']['{{parameter}}'] = parseFloat($("input[name={{devicename}}_{{subdevicename}}_{{parameter}}]").val());
+		}
+	  	{{/parameters}}
+	  	$.couch.db('{{databasename}}').saveDoc(postDoc, {
+        	success : function(resp) {
+          		$("#saved").text("Saved _rev: "+resp.rev).fadeIn(500).fadeOut(2000);
+				setTimeout(function() { 
+          			$("#deviceParameters").trigger("getParameters",["{{controldevicename}}","{{databasename}}","{{devicename}}","{{subdevicename}}"]);
+          		}, 2400 );
+
+				
+        	}
+      	});
+	  return false;
+	  });	
+  </script>
