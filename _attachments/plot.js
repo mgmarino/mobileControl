@@ -104,7 +104,21 @@ function plotData(chart_name, devicedata,starttime,endtime,grouplevel) {
 				        getData(controldevicename, databasename, devicename,subdevicename,s,e);
 				    }
 				    else {return;}
-		    },									
+		    },
+		    drawCallback : function(dygraph,is_initial) {
+		    	var mindate = devicedata[0][0].getTime()/1000;
+		    	var maxdate = devicedata[devicedata.length-1][0].getTime()/1000;
+		    	if( mindate == maxdate) {										// this happens if the range was selected to large and all the measured points are calculated to one point
+		    		mindate = mindate-3600;
+		    		maxdate = maxdate+3600;
+		    		getData(controldevicename, databasename, devicename,subdevicename,mindate,maxdate);
+		    	}
+				else {
+					if( starttime != mindate && endtime != maxdate ) {			// this will optimize the graph if the range is chosen to large
+						$.log(mindate,maxdate);
+						getData(controldevicename, databasename, devicename,subdevicename,mindate,maxdate);
+				}}
+			},									
 			zoomCallback : function(minDate, maxDate, yRanges) {				// acquires new data points if zoomed
 					var range = $charts[chart_name].xAxisRange();
 					var start = minDate/1000;
@@ -113,7 +127,10 @@ function plotData(chart_name, devicedata,starttime,endtime,grouplevel) {
 						$("#container").text('Loading..');
 						$zoomlevel.unshift([starttime, endtime]);
 						getData(controldevicename, databasename, devicename,subdevicename,start,end);
-			}}});
+					}
+			}
+
+			});
 			$("#container").width($(window).width()-50);
 			$charts[chart_name].resize();
 			$(window).resize(function(){
