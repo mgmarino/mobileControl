@@ -1,11 +1,12 @@
 var updateDatabaseInfo; // timer for collecting databases 
 var refreshControlDevicesPage; //timer for updating the main page
-var $DevicesList = {};			// THE MAIN LIST
+var $DevicesList = {};			// THE MAIN LIST in which are stored all the found devices
 var FoundALabjack = false;
 var FoundASkeleton = false;
 var firstLoad = true;
 var $firstview = true; // to prevent a bug in the theme
 var $firstview_deviceData = true; // 
+var $firstview_deviceLive = true; 
 
 $(document).bind('pagebeforecreate', function() {	// jQuery mobile uses this function instead of  $(document).ready()
 	collectDBs();
@@ -16,6 +17,7 @@ $.couch.app(function (app) {
         $("#dbListContent").evently("dbListContent", app);
         $("#deviceParameters").evently("deviceParameters", app);
         $("#deviceData").evently("deviceData", app);
+        $("#deviceLive").evently("deviceLive", app);
 });
 
 function collectDBs() {

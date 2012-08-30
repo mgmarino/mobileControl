@@ -9,5 +9,6 @@ function(event, name, pass) {
 	
 	$("#deviceParameters").trigger("getParameters",tmpdevicearray);
 	$("#deviceData").trigger("setRange",tmpdevicearray);
+	$("#deviceLive").trigger("live",tmpdevicearray);
 
 }

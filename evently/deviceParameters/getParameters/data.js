@@ -7,11 +7,15 @@ function(data,e, controldevicename,databasename,devicename,subdevicename) {
 		controldocname = 'Parameter';
 	}
 	var parameterlist = [];
-	if(data[devicename] != undefined && data[devicename][subdevicename]!=undefined) {
-		for(i in data[devicename][subdevicename]) {
-					parameterlist.push({'parameter' : i, 'value' : data[devicename][subdevicename][i],'subdevicename' : subdevicename, 'devicename' : devicename});
-		}			
-		return { parameters : parameterlist, controldevicename : controldevicename, databasename : databasename, devicename : devicename, subdevicename : subdevicename, doc : JSON.stringify(data), ControlDocName : controldocname};
+	if(data['updatefrequency'] != undefined || data[devicename] != undefined && data[devicename][subdevicename]!=undefined) {
+		if(data[devicename] != undefined && data[devicename][subdevicename]!=undefined) {
+			for(i in data[devicename][subdevicename]) {
+						parameterlist.push({'parameter' : i, 'value' : data[devicename][subdevicename][i],'subdevicename' : subdevicename, 'devicename' : devicename});
+		}}
+		if(data['updatefrequency'] != undefined) {
+			parameterlist.push({ 'parameter' : 'updatefrequency', 'value' : data['updatefrequency']});
+		}				
+		return { parameters : parameterlist, controldevicename : controldevicename, databasename : databasename, devicename2 : devicename, subdevicename2 : subdevicename, doc : JSON.stringify(data), ControlDocName : controldocname};
 	}
 	else {
 		$("#deviceParameters").html("<div data-role='collapsible' data-collapsed='false''> <h3>Parameters</h3><p> No parameters found</p></div>");
