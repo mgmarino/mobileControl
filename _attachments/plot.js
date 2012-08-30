@@ -2,8 +2,9 @@ var $UpdateTimer;
 var $charts = []; // List of charts, helpful, if you want to plot multiple data in one chart or multiple charts on one page
 var $zoomlevel = ['no zoom'];  // for dynamic data zoom feature
 var currentTime = new Date();
-var $UTCOffset = (currentTime.getTimezoneOffset()) * 60; // probably ORCA or some other software is saving data in UTC, not used here
+var $UTCOffset = (currentTime.getTimezoneOffset()) * 60; // the view should show the date in UTC, therefore we need to convert our date
 var $changes; // for the Live update
+
 
 function plotSubmit(controldevicename, databasename, devicename,subdevicename,sT,eT) {
 	clearInterval($UpdateTimer);
@@ -11,7 +12,6 @@ function plotSubmit(controldevicename, databasename, devicename,subdevicename,sT
 	$("#container").text("Loading..");
 	starttime = parseInt(sT);
 	endtime = parseInt(eT);
-	$.log(controldevicename);
 	getData(controldevicename,databasename,devicename,subdevicename,starttime,endtime);
 	
 }
@@ -19,8 +19,8 @@ function plotSubmit(controldevicename, databasename, devicename,subdevicename,sT
 function getData(controldevicename, databasename, devicename,subdevicename,starttime,endtime) {
 	
 	if (controldevicename == undefined) return;
-	var startdate = new Date(starttime*1000);
-	var enddate = new Date(endtime*1000);
+	var startdate = new Date((starttime+$UTCOffset)*1000);
+	var enddate = new Date((endtime+$UTCOffset)*1000);
 	
 	var y1 = startdate.getFullYear();
 	var m1 = startdate.getMonth();
@@ -52,7 +52,7 @@ function getData(controldevicename, databasename, devicename,subdevicename,start
 			var d = [];
 			for (var i in data.rows) {
 				for (j=0;j<8;j++) {if (data.rows[i].key[j]==undefined){data.rows[i].key[j]=0;}}
-				d[i]= [new Date(data.rows[i].key[2],data.rows[i].key[3],data.rows[i].key[4],data.rows[i].key[5],data.rows[i].key[6],data.rows[i].key[7]), data.rows[i].value['avg']];
+				d[i]= [new Date((new Date(data.rows[i].key[2],data.rows[i].key[3],data.rows[i].key[4],data.rows[i].key[5],data.rows[i].key[6],data.rows[i].key[7])).getTime()-$UTCOffset*1000), data.rows[i].value['avg']];
 			}
 			plotData(controldevicename+"_"+databasename+"_"+devicename+"_"+subdevicename,d, starttime,endtime,grouplevel);
 	}});
@@ -126,7 +126,7 @@ function Last5MinsviaChangesfeed(controldevicename,databasename,devicename,subde
 	$charts[controldevicename+"_"+databasename+"_"+devicename+"_"+subdevicename+'_live'] = undefined;
 	$("#livecontainer").text("Loading..");
 	theTime = new Date();
-	start = theTime.getTime() - (1000 *5*60);
+	start = (theTime.getTime()+$UTCOffset*1000) - (1000 *5*60);
 	starttime = new Date(start);
 
 	var viewname;
@@ -152,7 +152,7 @@ function Last5MinsviaChangesfeed(controldevicename,databasename,devicename,subde
 	$.couch.db(databasename).view(viewname, {startkey:[devicename,subdevicename,y1,m1,d1,h1,min1,s1,ms1], endkey:[devicename,subdevicename,{}], group:true, success: function(data) {
 			var d = [];
 			for (var i in data.rows) {
-				d[i]= [new Date(data.rows[i].key[2],data.rows[i].key[3],data.rows[i].key[4],data.rows[i].key[5],data.rows[i].key[6],data.rows[i].key[7],data.rows[i].key[8]), data.rows[i].value['avg']];
+				d[i]= [new Date((new Date(data.rows[i].key[2],data.rows[i].key[3],data.rows[i].key[4],data.rows[i].key[5],data.rows[i].key[6],data.rows[i].key[7])).getTime()-$UTCOffset*1000), data.rows[i].value['avg']];
 			}
 			plotUpdateData(controldevicename+"_"+databasename+"_"+devicename+"_"+subdevicename+'_live',d);
 			$changes = $.couch.db(databasename).changes();
