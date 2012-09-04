@@ -1,7 +1,9 @@
 /* add styles here */
 
-#account {
+.account {
   float:right;
+  margin-right: 4px;
+  margin-top: 4px;
 }
 
 #profile {

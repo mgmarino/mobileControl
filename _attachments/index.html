@@ -16,18 +16,15 @@
 		<div data-role="header" data-position="fixed">
 			<div data-role="controlgroup" data-type="horizontal">
    			 	<a>Mobile dataControl</a>
+<!--   			 	<a class="account"> </a>-->
    			 	<p>Control Devices </p>
-			</div>
-
+   			 </div>
 		</div>
 		<div data-role="content" id="controlDevicesContent" >
 		</div>
 		<div data-role="footer" id="controlDevicesFooter" data-position="fixed">
-			<div data-role="controlgroup" data-type="horizontal">
 				<input type="button" value="Refresh" onClick="window.location.reload()">
-			</div>
-		
-	    </div>
+		 </div>
     
     </div>
     <!-- controlDevices Page -->
@@ -36,7 +33,11 @@
 	<div data-role="page" data-theme="a"id="dbListPage">
 
 		<div data-role="header" data-position="fixed">
-		    <h1  id="dbListDevice"></h1>
+			<div data-role="controlgroup" data-type="horizontal">
+   			 	<a id="dbListDevice"></a>
+<!--   			 	<a class="account"> </a>-->
+   			 </div>		    
+		   
 		</div>
 		<div data-role="content" id="dbListContent" >
 
@@ -53,6 +54,7 @@
 
 		<div data-role="header" data-position="fixed">
 		    <h1  id="deviceName"></h1>
+		    <a class="account"> </a>
 		</div>
 		<div data-role="content" id="deviceContent" >
 
@@ -67,12 +69,54 @@
 	
 		</div>
 		<div data-role="footer" data-position="fixed">
-		    <a href="#controlDevicesPage" data-transition="slide" data-direction="reverse" data-icon="grid" >All devices</a>
+			<div data-role="controlgroup" data-type="horizontal">
+		    <a href="#controlDevicesPage" data-role="button" data-transition="slide" data-direction="reverse" data-icon="grid" >All devices</a>
+		    <a href="#controlDevicesPage" data-role="button" data-transition="slide" data-rel="back" >Back</a>
+		    </div>
 		</div>
 
 	</div>
 	<!-- devicePage -->
 	
+	<!-- LoginForm -->
+	<div data-role="dialog" id="login">
+	
+		<div data-role="header" data-theme="d">
+			<h1>Login</h1>
+		</div>
+
+		<div data-role="content" data-theme="b">
+			<h1>Login</h1>
+			<form id="loginform">
+			  <label for="name">Name</label> <input type="text" name="name" value="">
+			  <label for="password">Password</label> <input type="password" name="password" value="">
+			  <div id="loginstatus"> </div> 
+			  <input type="submit" value="Login" data-theme="b">
+			</form>
+			<a data-role="button" data-rel="back" data-theme="c">Cancel</a>   
+		</div>
+	</div>
+	<!-- LoginForm -->
+	
+	<!-- SignupForm -->
+	<div data-role="dialog" id="signup">
+	
+		<div data-role="header" data-theme="d">
+			<h1>Signup</h1>
+		</div>
+
+		<div data-role="content" data-theme="b">
+			<h1>Login</h1>
+			<form id="loginform">
+			  <label for="name">Name</label> <input type="text" name="name" value="">
+			  <label for="password">Password</label> <input type="password" name="password" value="">
+			  <div id="loginstatus"> </div> 
+			  <input type="submit" value="Login" data-theme="b">
+			</form>
+			<a data-role="button" data-rel="back" data-theme="c">Cancel</a>   
+		</div>
+	</div>
+	<!-- SignupForm -->
 	
 
     </body>

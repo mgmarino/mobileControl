@@ -2,7 +2,7 @@ var $UpdateTimer;
 var $charts = []; // List of charts, helpful, if you want to plot multiple data in one chart or multiple charts on one page
 var $zoomlevel = ['no zoom'];  // for dynamic data zoom feature
 var currentTime = new Date();
-var $UTCOffset = (currentTime.getTimezoneOffset()) * 60; // the view should show the date in UTC, therefore we need to convert our date
+var $UTCOffset = (currentTime.getTimezoneOffset()) * 60; // the view should show the date in UTC, therefore we need to convert our date,too.
 var $changes; // for the Live update
 
 
@@ -95,7 +95,7 @@ function plotData(chart_name, devicedata,starttime,endtime,grouplevel) {
 			labels: ['Time', subdevicename],
 			title: "<h4>"+ sDate +" - "+ eDate +"<h4>",
 			sigFigs : 4,										// number of significant figures
-			clickCallback: function(e, x, pts) {
+			clickCallback: function(e, x, pts) {	// here used to zoom out, but can also be used to show detailed information about the data point
 					if ($zoomlevel[0] != 'no zoom') {
 						var s = $zoomlevel[0][0];
 						var e = $zoomlevel[0][1];
@@ -108,14 +108,13 @@ function plotData(chart_name, devicedata,starttime,endtime,grouplevel) {
 		    drawCallback : function(dygraph,is_initial) {
 		    	var mindate = devicedata[0][0].getTime()/1000;
 		    	var maxdate = devicedata[devicedata.length-1][0].getTime()/1000;
-		    	if( mindate == maxdate) {										// this happens if the range was selected to large and all the measured points are calculated to one point
+		    	if( mindate == maxdate) {										// this happens if the range was selected to large and there is only data in the interval of one hour, so all the measured points are calculated to one average value
 		    		mindate = mindate-3600;
 		    		maxdate = maxdate+3600;
 		    		getData(controldevicename, databasename, devicename,subdevicename,mindate,maxdate);
 		    	}
 				else {
-					if( starttime != mindate && endtime != maxdate ) {			// this will optimize the graph if the range is chosen to large
-						$.log(mindate,maxdate);
+					if( starttime != mindate && endtime != maxdate ) {			// this will optimize the graph if the range was chosen to large
 						getData(controldevicename, databasename, devicename,subdevicename,mindate,maxdate);
 				}}
 			},									
@@ -131,7 +130,7 @@ function plotData(chart_name, devicedata,starttime,endtime,grouplevel) {
 			}
 
 			});
-			$("#container").width($(window).width()-50);
+			$("#container").width($(window).width()-50);			// this sets the width of the chart window to the whole width of the site
 			$charts[chart_name].resize();
 			$(window).resize(function(){
    			$("#container").width($(window).width()-50);
@@ -172,6 +171,7 @@ function Last5MinsviaChangesfeed(controldevicename,databasename,devicename,subde
 				d[i]= [new Date((new Date(data.rows[i].key[2],data.rows[i].key[3],data.rows[i].key[4],data.rows[i].key[5],data.rows[i].key[6],data.rows[i].key[7])).getTime()-$UTCOffset*1000), data.rows[i].value['avg']];
 			}
 			plotUpdateData(controldevicename+"_"+databasename+"_"+devicename+"_"+subdevicename+'_live',d);
+			if($changes!=undefined) {$changes.stop();}
 			$changes = $.couch.db(databasename).changes();
 			$("#deviceLive").on("blur", function() {$.log('blur');$changes.stop();});
 			$changes.onChange(function(data) {

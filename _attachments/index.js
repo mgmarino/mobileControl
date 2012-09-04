@@ -18,6 +18,14 @@ $.couch.app(function (app) {
         $("#deviceParameters").evently("deviceParameters", app);
         $("#deviceData").evently("deviceData", app);
         $("#deviceLive").evently("deviceLive", app);
+        $(".account").evently("account", app);
+});
+
+$("form#loginform").submit(function() {
+  var name = $('input[name=name]', this).val(),
+  pass = $('input[name=password]', this).val();              
+  $(".account").trigger('doLogin', [name, pass]);
+  return false;
 });
 
 function collectDBs() {
@@ -73,8 +81,6 @@ function getView(aDataBaseName,aViewName,id) {
 			}
 			$DevicesList[id][aDataBaseName][doc.rows[i].key[0]][doc.rows[i].key[1]] = doc.rows[i].value;
 		}
-		$.couch.app(function (app) {
-	});
 	}});
 }
 
@@ -160,17 +166,4 @@ function doView (view, json, callback) {
                         }
     })
         );
-}
-function doStoreDocument(document) {
-        $db.saveDoc(document, {
-                async : false,
-                success: function (data) {
-                        $("body").data.docEdited = data.id;
-        $.log("store - success" + data.id + " " +  data.rev);
-                        //  $.mobile.changePage("#editPage", "slidedown", true, true);
-                },
-    error: function () {
-        alert("Cannot save new document.");
-    }
-});
 }

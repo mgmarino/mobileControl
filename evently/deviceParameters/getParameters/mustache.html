@@ -39,9 +39,13 @@
 				setTimeout(function() {  
           			$("#deviceParameters").trigger("getParameters",["{{controldevicename}}","{{databasename}}","{{devicename2}}","{{subdevicename2}}"]);
           		}, 2400 );
-          		// this method only updates if the couchapp changed the parameters, better: use  $.couch.db(db).changes(); function, but I don't figured out how to implement filters
-
-				
+          		// this method only updates if the couchapp changed the parameters, better: use  $.couch.db(db).changes(); function, but I don't figured out how to implement filters in jQuery .changes()	
+        	},
+        	error : function(data) {
+        		$("#saved")
+        		.text("You are not authorized to do this, please log in")
+        		.css("color", "red")
+        		.fadeIn(500);	
         	}
       	});
 	  return false;

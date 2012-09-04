@@ -6,5 +6,6 @@ function(callback, e, controldevicename,databasename,devicename,subdevicename) {
 	if(controldevicename=='DataGenerators') {
 		controldocname = 'Parameter';
 	}
-	getParameters(controldevicename, databasename,devicename,subdevicename, controldocname, callback);
+	getParameters(controldevicename, databasename,devicename,subdevicename, controldocname, callback); // this function is defined in index.js
+	// the callback function delivers the data from the document to data.js
 }
