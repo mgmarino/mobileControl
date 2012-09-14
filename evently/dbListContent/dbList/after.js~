@@ -1,0 +1,7 @@
+function (data) {
+    $.log("evently/dbListContent/after.js" );
+   	if (!$firstview) {$("#dbListContent").trigger("create");}
+   	$firstview = false;
+   	$("#account").trigger("_init");
+    return data;
+}

@@ -1,0 +1,13 @@
+<div data-role="collapsible-set">
+	{{#devices}}
+	
+	<div data-role="collapsible">
+	<h3>{{devicename}}</h3>
+	<ul data-role="listview" data-theme="b">
+	{{#subdevices}}
+	<li><a href="#parameters" id="{{controldevice}}_{{database}}_{{devicename}}_{{subdevicename}}">{{subdevicename}}</a></li>
+	{{/subdevices}}
+	</div>
+	</ul>
+	{{/devices}}
+</div>

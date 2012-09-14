@@ -20,7 +20,7 @@ $.couch.app(function (app) {
         $("#deviceParameters").evently("deviceParameters", app);
         $("#deviceData").evently("deviceData", app);
         $("#deviceLive").evently("deviceLive", app);
-        $(".account").evently("account", app);
+        $("#account").evently("account", app);
 });
 
 $("form#loginform").submit(function() {

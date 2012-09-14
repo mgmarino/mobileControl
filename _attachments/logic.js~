@@ -1,0 +1,139 @@
+
+// var $updateDatabaseInfo; // timer for collecting databases 
+var $refreshControlDevicesPage; //timer for updating the main page
+var $SkeletonDBList = [];
+var $LabjackList = [];
+var FoundALabjack = false;
+var FoundASkeleton = false;
+
+
+function collectDBs() {
+	clearInterval($updateDatabaseInfo);
+    $.couch.allDbs( { success : function(dbs) { loadDBList(dbs); } });
+    $updateDatabaseInfo = setInterval('collectDBs()', 2000);
+}
+
+function loadDBList(dbs) {
+    dbs.forEach(function(db1) {
+        var aDB = $.couch.db(db1);
+		aDB.allDocs( { keys : ['Parameter'] , 				// for data generator 
+			success: function(data) {
+				for(var i in data.rows) {
+					if (data.rows[i]['error']) return;
+				}
+				foundSkeleton(db1);
+		}, error : function(data){$.log(data);}});
+
+		if(db1.match("labjack")){							// for LabJack
+			foundLabJack(db1);
+		}
+    });
+}
+
+function foundSkeleton(aDataBaseName) {
+	FoundASkeleton = true;
+	getView(aDataBaseName,"Skeleton/bykey",$SkeletonDBList);
+}
+
+function foundLabJack(aDataBaseName) {
+	FoundALabjack = true;
+	getView(aDataBaseName,"Labjack/bykey", $LabjackList);
+}
+
+function getView(aDataBaseName,aViewName,progarray) {
+// this adds the found devices to the array of the program source, e.g. the $LabjackList, in updateHTML this list will be rendered to HTML 
+// javascript allows to name the different subarrays, with help of objects
+// therefore it gets the structure like a tree: databasename(Labjacks)-devicetype(Labjack_for_valves)-devicename(valve1)
+	var aDataBase = $.couch.db(aDataBaseName);
+	
+	aDataBase.view(aViewName, {group_level : 2, stale : 'update_after', success : function(doc) {
+		progarray[aDataBaseName] = [];
+		for (i in doc.rows) {
+			if (progarray[aDataBaseName][doc.rows[i].key[0]] == undefined) {
+				progarray[aDataBaseName][doc.rows[i].key[0]] = new Object();
+			}
+			progarray[aDataBaseName][doc.rows[i].key[0]][doc.rows[i].key[1]] = new Object();
+		}
+	}});
+}
+
+function updateHTML() {
+// this functions renders the Lists of devices to HTML collapsible list
+	
+    var content = '<div data-role="collapsible-set">';
+    var count = 0;
+    
+  	if (FoundASkeleton) {
+  		content += '<div data-role="collapsible">';
+  		content += '<h3>Data generators</h3>';
+  		content += '<ul>';
+		for (var dbName in $SkeletonDBList) {
+			count = count+1;
+			content += '<li><a href="#'+dbName+'">' + dbName +'</a></li>';
+			content +='<ul>';
+		content += '</div>';
+			
+	}
+	if (FoundALabjack) {
+  		content += '<div data-role="collapsible">';
+  		content += '<h3>Labjacks</h3>';
+  		content += '<ul>';
+		for (var dbName in $LabjackList) {
+			count = count+1;
+			content += '<li><a href="#'+dbName+'">' + dbName +'</a></li>';
+			content +='<ul>';	
+			content += '</div>';
+	}
+	
+	// Labview, etc?
+
+    if(count>0){
+		clearInterval($refreshControlDevicesPage);
+		clearInterval($updateDatabaseInfo);
+        document.getElementById('controlDevicesContent').innerHTML = content;
+    }
+	else {
+		clearInterval($refreshControlDevicesPage);
+	    $refreshControlDevicesPage = setInterval('updateHTML()', 2000);
+        if(firstLoad){
+            document.getElementById('controlDevicesContent').innerHTML = "Loading";
+            firstLoad = false;
+        }
+        else {
+            document.getElementById('controlDevicesContent').innerHTML = "There are no devices in CouchDB";
+        }
+    }
+}
+
+$.couch.app(function (app) {
+        $("#controlDevicesContent").evently("controlDevicesContent", app);
+});
+
+
+function makeEmptyNote () {
+        $.log("logic.js - makeEmptyNote");
+        var emptynote = {"_id" :  ""
+                , "_rev" : ""
+                , "type" : "note"
+                , "TextNote" : {"note" : {"title": ""
+                        , "text" : ""
+                        , "tags" : []
+                }
+                }
+        };
+        return emptynote;
+};
+
+function doStoreDocument(document) {
+        $db.saveDoc(document, {
+                async : false,
+                success: function (data) {
+                        $("body").data.docEdited = data.id;
+        $.log("store - success" + data.id + " " +  data.rev);
+                        //  $.mobile.changePage("#editPage", "slidedown", true, true);
+                },
+    error: function () {
+        alert("Cannot save new document.");
+    }
+});
+}

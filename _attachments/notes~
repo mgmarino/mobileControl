@@ -1,0 +1,54 @@
+function updateHTML() {
+// this functions renders the Lists of devices to HTML collapsible list
+	
+    var content = '<div data-role="collapsible-set">';
+    var count = 0;
+    
+  	if (FoundASkeleton) {
+  		content += '<div data-role="collapsible">';
+  		content += '<h3>Data generators</h3>';
+		for (var dbName in $SkeletonDBList) {
+			count = count+1;
+			content += '<p><a href="#'+dbName+'">' + dbName +'</a></p>';
+		}
+		content += '</div>';
+	}
+	if (FoundALabjack) {
+  		content += '<div data-role="collapsible">';
+  		content += '<h3>Labjacks</h3>';
+  		content += '<ul>';
+		for (var dbName in $LabjackList) {
+			count = count+1;
+			content += '<li><a href="#'+dbName+'">' + dbName +'</a></li>';
+		}
+		content +='<ul>';	
+		content += '</div></div>';
+	}
+	
+	// Labview, etc?
+
+    if(count>0){
+		clearInterval(refreshControlDevicesPage);
+		clearInterval(updateDatabaseInfo);
+		$.log("Fertig?");
+		
+        $('#controlDevicesContent').html(content);
+        $.mobile.changePage($("#controlDevicesPage"),{ transition: "slideup"} );
+    }
+	else {
+		clearInterval(refreshControlDevicesPage);
+	    refreshControlDevicesPage = setInterval('updateHTML()', 2000);
+        if(firstLoad){
+            $('#controlDevicesContent').text("Loading");
+            firstLoad = false;
+        }
+        else {
+            $('#controlDevicesContent').innerHTML = "There are no devices in CouchDB";
+        }
+    }
+}
+
+$.couch.app(function (app) {
+//        $("#controlDevicesContent").evently("controlDevicesContent", app);
+});
+

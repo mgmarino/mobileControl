@@ -1,0 +1,10 @@
+<div data-role="collapsible-set">
+{{#theList}}
+		<div data-role="collapsible"> 
+			<h3> {{name}} </h3>
+			{{#databaselist}}
+			<p> <a href="#" id="{{.}}">{{.}}</a> </p>
+			{{/databaselist}}
+		</div>
+{{/theList}}
+</div>
