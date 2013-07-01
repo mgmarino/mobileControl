@@ -1,4 +1,0 @@
-function (data) {
-	$.log('account/after.js');
-	$(".account").trigger("create");
-}
